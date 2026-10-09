@@ -1,0 +1,28 @@
+# Gradle
+.gradle/
+build/
+*/build/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Android
+local.properties
+captures/
+
+# OS
+.DS_Store
+
+# 临时文件
+*.log
+logs/
+
+# 构建临时目录
+out/
+htx_build/
+
+# 签名密钥
+*.keystore
+*.jks
