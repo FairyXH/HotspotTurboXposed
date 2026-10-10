@@ -19,15 +19,30 @@ public class Entry extends XposedModule {
 
     @Override
     public void onModuleLoaded(ModuleLoadedParam param) {
-        log("Hotspot Turbo Xposed 模块已加载, 版本 1.0.0");
-        log("processName: " + param.getProcessName());
-        log("systemServer: " + param.isSystemServer());
+        log(">>> 模块已被 LSPosed 加载! 进程=" + param.getProcessName()
+                + " systemServer=" + param.isSystemServer()
+                + " apiVersion=" + getApiVersion());
+        // 在 system_server 中：应用系统级网络优化（root/su 写 sysctl）
+        if (param.isSystemServer()) {
+            log("检测到 system_server, 应用系统级网络优化...");
+            try {
+                NetworkOptimizer.applySystemServerOptimize();
+                log("系统级网络优化完成");
+            } catch (Throwable t) {
+                log("系统级网络优化失败: " + t);
+            }
+        }
     }
 
     @Override
     public void onPackageLoaded(PackageLoadedParam param) {
         String pkg = param.getPackageName();
         log("onPackageLoaded: " + pkg);
+        // 在 system_server 中不重复安装 hooks（Tethering 逻辑在 networkstack 进程）
+        if ("android".equals(pkg) || "system".equals(pkg) || "com.android.shell".equals(pkg)) {
+            log("系统进程不安装 hotspot hooks: " + pkg);
+            return;
+        }
         // 只在 networkstack 进程安装 hook（TetheringConfiguration 所在进程）
         if (!TARGET_PACKAGE.equals(pkg)) {
             log("非目标进程，跳过 hook: " + pkg);
@@ -49,8 +64,8 @@ public class Entry extends XposedModule {
 
     @Override
     public void onSystemServerStarting(SystemServerStartingParam param) {
-        log("system_server 启动中");
-        // system_server 不安装 hooks（Tethering 逻辑在 networkstack 进程）
+        log("system_server 启动中（系统级网络优化将在此执行）");
+        // system_server 不安装 hotspot hooks（Tethering 逻辑在 networkstack 进程）
     }
 
     public static void log(String msg) {

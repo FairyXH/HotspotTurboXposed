@@ -1,4 +1,0 @@
-// 根构建脚本
-plugins {
-    id 'com.android.application' version '8.12.3' apply false
-}
