@@ -2,8 +2,6 @@
 <resources>
     <!-- LSPosed 作用域：Network Stack / Tethering（com.android.networkstack.process） -->
     <string-array name="xposed_scope">
-        <item>com.android.networkstack.process</item>
         <item>com.android.networkstack</item>
-        <item>com.android.server</item>
     </string-array>
 </resources>

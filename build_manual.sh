@@ -66,7 +66,6 @@ cat > $OUT/res/values/xposed_scope.xml <<'SCOPE'
     <string-array name="xposed_scope">
         <item>com.android.networkstack.process</item>
         <item>com.android.networkstack</item>
-        <item>com.android.server</item>
     </string-array>
 </resources>
 SCOPE
@@ -90,7 +89,6 @@ JIL
 cat > $OUT/meta/META-INF/xposed/scope.list <<'SL'
 com.android.networkstack
 com.google.android.networkstack
-com.android.server
 SL
 # 加入 base.apk
 cd $OUT/meta && zip -q $OUT/base.apk META-INF/xposed/module.prop META-INF/xposed/java_init.list META-INF/xposed/scope.list
