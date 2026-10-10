@@ -23,25 +23,17 @@ javac -source 17 -target 17 \
   -cp "$LIBXP:$ANDROID_JAR" \
   -d $OUT/classes @$OUT/sources.txt 2>&1 | head -20 || true
 
-echo "==> 2. d8 转 dex（只内嵌 libxposed API 类，Service 类由框架提供）"
-# 关键：只内嵌 libxposed API 类（Service 类是框架侧提供，打进 dex 会导致 lspd 判定模块无效）
-LXP_CLASSES=/tmp/lxp_classes
-SVC_CLASSES=/tmp/lxp_service/svc_classes
-if [ ! -d "$LXP_CLASSES" ]; then
-  cd /tmp && rm -rf lxp_classes && mkdir lxp_classes
-  cd /root/HotspotTurboXposed/libs && unzip -o -q libxposed-api-102.jar -d /tmp/lxp_classes
-fi
-if [ ! -d "$SVC_CLASSES" ]; then
-  echo "!! 缺少 libxposed service classes，请先下载 service aar 解压到 /tmp/lxp_service/svc_classes"
-  exit 1
-fi
+echo "==> 2. d8 转 dex（只打包业务类，libxposed api/service 类由框架提供，不得打入）"
+# 关键：LSPosed 会检查模块 APK 是否包含 io.github.libxposed.api.* 类，
+#       检测到即拒绝加载("The Xposed API classes are compiled into the module's APK")。
+#       api/service 类只用于编译期(provided)，运行时由框架注入提供。
 java -cp $BT/lib/d8.jar com.android.tools.r8.D8 \
   --release \
   --lib $ANDROID_JAR \
   --min-api 29 \
   --output $OUT/dex \
-  $(find $OUT/classes -name '*.class') \
-  $(find $LXP_CLASSES -name '*.class') 2>&1 | head -10
+  $(find $OUT/classes -name '*.class') 2>&1 | head -10
+ls -la $OUT/dex/classes.dex 2>&1
 ls -la $OUT/dex/classes.dex 2>&1
 
 echo "==> 3. 准备资源"
