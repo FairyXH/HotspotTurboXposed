@@ -96,7 +96,7 @@ cd $OUT/meta && zip -q $OUT/base.apk META-INF/xposed/module.prop META-INF/xposed
 echo "==> 5. 加入 dex"
 cd $OUT/apk
 cp $OUT/dex/classes.dex .
-zip -q $OUT/base.apk classes.dex
+zip -q -0 $OUT/base.apk classes.dex  # classes.dex 必须以 STORED(不压缩) 方式存储
 
 echo "==> 6. zipalign + 签名"
 zipalign -f 4 $OUT/base.apk $OUT/aligned.apk

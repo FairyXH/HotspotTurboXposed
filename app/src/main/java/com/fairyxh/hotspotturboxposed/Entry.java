@@ -1,7 +1,6 @@
 package com.fairyxh.hotspotturboxposed;
 
 import io.github.libxposed.api.XposedModule;
-import io.github.libxposed.api.XposedModuleInterface;
 
 /**
  * Hotspot Turbo Xposed 模块入口（LSPosed API 102）。
@@ -13,7 +12,7 @@ import io.github.libxposed.api.XposedModuleInterface;
  * 2. 热点网络优化（速率/延迟参数）
  * 3. 探索双频合一热点（BridgedSoftAp）
  */
-public class Entry extends XposedModule implements XposedModuleInterface {
+public class Entry extends XposedModule {
 
     private static final String TAG = "HTXposed";
 
