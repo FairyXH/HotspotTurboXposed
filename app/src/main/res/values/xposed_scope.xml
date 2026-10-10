@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- LSPosed 作用域：Network Stack / Tethering（com.android.networkstack.process） -->
-    <string-array name="xposed_scope">
-        <item>com.android.networkstack</item>
-    </string-array>
-</resources>
