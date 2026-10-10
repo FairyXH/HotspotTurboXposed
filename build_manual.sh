@@ -23,9 +23,8 @@ javac -source 17 -target 17 \
   -cp "$LIBXP:$ANDROID_JAR" \
   -d $OUT/classes @$OUT/sources.txt 2>&1 | head -20 || true
 
-echo "==> 2. d8 转 dex（内嵌 libxposed API + Service 类！）"
-# 关键：libxposed API/Service 类必须打进 dex，否则 LSPosed 加载时
-# ClassNotFoundException: io.github.libxposed.api.XposedModule
+echo "==> 2. d8 转 dex（只内嵌 libxposed API 类，Service 类由框架提供）"
+# 关键：只内嵌 libxposed API 类（Service 类是框架侧提供，打进 dex 会导致 lspd 判定模块无效）
 LXP_CLASSES=/tmp/lxp_classes
 SVC_CLASSES=/tmp/lxp_service/svc_classes
 if [ ! -d "$LXP_CLASSES" ]; then
@@ -42,8 +41,7 @@ java -cp $BT/lib/d8.jar com.android.tools.r8.D8 \
   --min-api 29 \
   --output $OUT/dex \
   $(find $OUT/classes -name '*.class') \
-  $(find $LXP_CLASSES -name '*.class') \
-  $(find $SVC_CLASSES -name '*.class') 2>&1 | head -10
+  $(find $LXP_CLASSES -name '*.class') 2>&1 | head -10
 ls -la $OUT/dex/classes.dex 2>&1
 
 echo "==> 3. 准备资源"
@@ -67,12 +65,6 @@ cat > $OUT/AndroidManifest.xml <<'MANIFEST'
         <meta-data android:name="xposeddescription" android:value="热点加速与网段锁定" />
         <meta-data android:name="xposedscope" android:resource="@array/xposed_scope" />
 
-        <!-- libxposed service：提供作用域推荐/远程配置（LSPosed 新式模块注册） -->
-        <provider
-            android:name="io.github.libxposed.service.XposedProvider"
-            android:authorities="com.fairyxh.hotspotturboxposed.XposedService"
-            android:exported="true"
-            tools:ignore="ExportedContentProvider" />
     </application>
 </manifest>
 MANIFEST
@@ -95,8 +87,8 @@ echo "==> 4.5 加入 META-INF/xposed/ 现代模块声明"
 # 现代 libxposed 模块作用域声明（LSPosed IT 识别依赖这些文件）
 mkdir -p $OUT/meta/META-INF/xposed
 cat > $OUT/meta/META-INF/xposed/module.prop <<'MP'
-minApiVersion=102
-targetApiVersion=102
+minApiVersion=101
+targetApiVersion=101
 staticScope=true
 exceptionMode=protective
 MP
